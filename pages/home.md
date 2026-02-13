@@ -4,12 +4,18 @@ assetId: 6e867b01-5d88-49d9-b8bf-20cee39d59b6
 type: page
 ---
 
+{% row
+        card=false
+        %}
 # 🏥 Fresh Real-Time Operational Data
 {% clock /%}
+{% /row %}
 
-_Near real-time operational metrics for Primary Care_
 ## 🚀 Demand Management
 
+{% row
+        card=false
+        %}
 ```sql demand_now
 SELECT 30 AS demand_requests, 35 AS forecasted_volume
 ```
@@ -61,7 +67,32 @@ ORDER BY hour_start
     /%}
 {% /combo_chart %}
 
-## 🩺 Wait Times — Next Available Appointment by Province
+{% /row %}
+
+
+## 📋 Wait Time
+
+{% row
+        card=false
+        %}
+```sql active_queues
+SELECT queue, episodes_waiting, avg_wait_minutes
+FROM (
+    SELECT 'NC' AS queue, 18 AS episodes_waiting, 45 AS avg_wait_minutes, 1 AS sort_order
+    UNION ALL SELECT 'CC', 12, 72, 2
+)
+ORDER BY sort_order
+```
+{% heat_grid
+  data="active_queues"
+  dimension="queue"
+  value="avg(avg_wait_minutes)"
+  thresholds=[45, 60]
+  units="MIN"
+  lower_is_better=true
+  title="Average Wait Time by Queue"
+/%}
+
 
 ```sql capacity_wait
 SELECT province, specialization, avg_wait_minutes, provider_count
@@ -186,28 +217,15 @@ ORDER BY province, specialization
   }
 /%}
 
+{% /row %}
 
-## 📋 Active Queues
-```sql active_queues
-SELECT queue, episodes_waiting, avg_wait_minutes
-FROM (
-    SELECT 'NC' AS queue, 18 AS episodes_waiting, 45 AS avg_wait_minutes, 1 AS sort_order
-    UNION ALL SELECT 'CC', 12, 72, 2
-)
-ORDER BY sort_order
-```
-{% heat_grid
-  data="active_queues"
-  dimension="queue"
-  value="avg(avg_wait_minutes)"
-  thresholds=[45, 60]
-  units="MIN"
-  lower_is_better=true
-  title="Average Wait Time by Queue"
-/%}
 
 
 ## ⭐ Quality of Care
+{% row
+        card=false
+        %}
+
 
 ```sql consultation_score
 SELECT 4.3 AS avg_score, 127 AS total_reviews
@@ -219,7 +237,6 @@ SELECT 4.3 AS avg_score, 127 AS total_reviews
   fmt="#,##0.0' / 5 ⭐'"
 /%}
 
-## 🛤️ Journey Continuity
 
 ```sql care_path
 SELECT stage, members
@@ -242,8 +259,6 @@ ORDER BY sort_order
   value_fmt="#,##0"
 /%}
 
-
-## 🛡️ System & Support Health
 
 ```sql incidents_now
 SELECT 10 AS app_crashes, 15 AS crash_threshold, 2 AS support_tickets, 5 AS ticket_threshold
@@ -336,3 +351,5 @@ ORDER BY hour, metric
         }
     /%}
 {% /bar_chart %}
+
+{% /row %}
