@@ -6,4 +6,11 @@ type: partial
 
 # forecast
 
-This is a new partial.
+
+
+{% bar_chart
+  data="psyhourlyforecast"
+  x="hour"
+  y="total_demand"
+  title="Hourly Psychology Demand Forecast"
+/%}
