@@ -4,7 +4,9 @@ assetId: 6e867b01-5d88-49d9-b8bf-20cee39d59b6
 type: page
 ---
 
-# 🏥 ServiceOS Admin Console — Real-Time Operations
+# 🏥 Fresh Real-Time Operational Data
+{% clock /%}
+
 _Near real-time operational metrics for Primary Care_
 ## 🚀 Demand Management
 
@@ -47,4 +49,97 @@ ORDER BY sort_order
   value_fmt="#,##0"
 /%}
 
+
 ## 🛡️ System & Support Health
+
+```sql incidents_now
+SELECT 10 AS app_crashes, 15 AS crash_threshold, 2 AS support_tickets, 5 AS ticket_threshold
+```
+
+{% big_value
+  data="incidents_now"
+  value="app_crashes"
+  title="App Crashes (Last Hour)"
+  fmt="#,##0"
+  comparison={
+    compare_vs="target"
+    target="crash_threshold"
+    display_type="abs"
+    text="vs. healthy threshold (15)"
+    down_is_good=true
+  }
+/%}
+
+{% big_value
+  data="incidents_now"
+  value="support_tickets"
+  title="Support Tickets (Last Hour)"
+  fmt="#,##0"
+  comparison={
+    compare_vs="target"
+    target="ticket_threshold"
+    display_type="abs"
+    text="vs. healthy threshold (5)"
+    down_is_good=true
+  }
+/%}
+
+```sql incidents_trend
+SELECT
+    toDateTime('2025-01-15 00:00:00') + INTERVAL number HOUR AS hour,
+    'App Crashes' AS metric,
+    arrayElement([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], number + 1) AS incidents
+FROM numbers(24)
+
+UNION ALL
+
+SELECT
+    toDateTime('2025-01-15 00:00:00') + INTERVAL number HOUR AS hour,
+    'Support Tickets' AS metric,
+    arrayElement([0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 3, 2, 1, 2, 3, 1, 2, 1, 0, 1, 0, 0, 0, 0], number + 1) AS incidents
+FROM numbers(24)
+
+ORDER BY hour, metric
+```
+
+{% bar_chart
+  data="incidents_trend"
+  x="hour"
+  y="sum(incidents)"
+  series="metric"
+  title="Support & Stability Overhead"
+  subtitle="Hourly incident count (midnight–midnight EST) vs. healthy thresholds"
+  x_fmt="HH:mm"
+  y_fmt="#,##0"
+  chart_options={
+    series_colors={
+      "App Crashes"="#e53e3e"
+      "Support Tickets"="#3182ce"
+    }
+  }
+%}
+    {% reference_line
+        y=15
+        label="Crash Threshold"
+        color="#e53e3e"
+        line_options={
+            type="dashed"
+            width=2
+        }
+        label_options={
+            position="below_start"
+        }
+    /%}
+    {% reference_line
+        y=5
+        label="Ticket Threshold"
+        color="#3182ce"
+        line_options={
+            type="dashed"
+            width=2
+        }
+        label_options={
+            position="above_start"
+        }
+    /%}
+{% /bar_chart %}
